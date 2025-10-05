@@ -1,102 +1,92 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-import mysql.connector
-import json
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+import sqlite3, json
 
 app = Flask(__name__)
 app.secret_key = "tuks_secret_key"
 
-# Configuración de la base de datos
-DB_NAME = "las_tuks2"
-
+# --- Conexión a la base de datos ---
 def get_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="inframen2025",  # tu contraseña si tienes
-        database='las_tuks2'
-    )
+    conn = sqlite3.connect("las_tuks.db", check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-# --- RUTAS ---
-@app.route('/')
+# --- Crear tabla si no existe ---
+with get_connection() as conn:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_name TEXT,
+            customer_phone TEXT,
+            items TEXT,
+            total REAL,
+            estado TEXT DEFAULT 'Pendiente'
+        )
+    """)
+    conn.commit()
+
+# --- Rutas ---
+@app.route("/")
 def menu():
-    return render_template('menu.html')
+    return render_template("menu.html")
 
-@app.route('/pedido', methods=['POST'])
+@app.route("/pedido", methods=["POST"])
 def pedido():
-    try:
-        data = request.get_json()
-        nombre = data.get('nombre')
-        telefono = data.get('telefono')
-        items = data.get('items')
-        total = data.get('total')
+    data = request.get_json()
+    nombre = data.get("nombre")
+    telefono = data.get("telefono")
+    items = data.get("items")
+    total = data.get("total")
 
+    try:
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO orders (customer_name, customer_phone, items, total, estado)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (nombre, telefono, json.dumps(items), total, "Pendiente"))
+        cur.execute(
+            "INSERT INTO orders (customer_name, customer_phone, items, total, estado) VALUES (?, ?, ?, ?, ?)",
+            (nombre, telefono, json.dumps(items), total, "Pendiente"),
+        )
         conn.commit()
-        cur.close()
+        mensaje = f"Gracias {nombre}, tu pedido fue recibido por un total de ${total:.2f}. ¡Las Tuks te desea buen provecho!"
+        return jsonify({"message": mensaje})
+    except Exception as e:
+        return jsonify({"message": f"Error al procesar pedido: {e}"})
+    finally:
         conn.close()
 
-        mensaje = f"Gracias {nombre}, tu pedido fue recibido por un total de ${float(total):.2f}. ¡Las Tuks te desean buen provecho! 🌮"
-        return jsonify({"message": mensaje}), 200
-
-    except Exception as e:
-        print("Error al procesar pedido:", e)
-        return jsonify({"message": "Hubo un error al registrar el pedido."}), 500
-
-
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        usuario = request.form['usuario']
-        password = request.form['password']
-        if usuario == "admin" and password == "12345":
-            session['admin'] = True
-            return redirect(url_for('admin'))
-        else:
-            return render_template('login.html', error="Credenciales incorrectas")
-    return render_template('login.html')
+    if request.method == "POST":
+        user = request.form["username"]
+        password = request.form["password"]
+        if user == "admin" and password == "12345":
+            session["admin"] = True
+            return redirect(url_for("admin"))
+        return render_template("login.html", error="Credenciales incorrectas")
+    return render_template("login.html")
 
-@app.route('/admin')
+@app.route("/admin")
 def admin():
-    if 'admin' not in session:
-        return redirect(url_for('login'))
-
+    if not session.get("admin"):
+        return redirect(url_for("login"))
     conn = get_connection()
-    cur = conn.cursor(dictionary=True)
-    cur.execute("SELECT * FROM orders ORDER BY fecha DESC")
-    pedidos = cur.fetchall()
-    cur.close()
+    pedidos = conn.execute("SELECT * FROM orders").fetchall()
     conn.close()
-    return render_template('admin.html', pedidos=pedidos)
+    return render_template("admin.html", pedidos=pedidos)
 
-@app.route('/marcar_entregado/<int:pedido_id>', methods=['POST'])
-def marcar_entregado(pedido_id):
+@app.route("/marcar_entregado/<int:id>")
+def marcar_entregado(id):
     conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("UPDATE orders SET estado='Entregado' WHERE id=%s", (pedido_id,))
+    conn.execute("UPDATE orders SET estado='Entregado' WHERE id=?", (id,))
     conn.commit()
-    cur.close()
     conn.close()
-    return jsonify({"success": True})
+    return redirect(url_for("admin"))
 
-@app.route('/eliminar_pedido/<int:pedido_id>', methods=['POST'])
-def eliminar_pedido(pedido_id):
+@app.route("/eliminar_pedido/<int:id>")
+def eliminar_pedido(id):
     conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM orders WHERE id=%s", (pedido_id,))
+    conn.execute("DELETE FROM orders WHERE id=?", (id,))
     conn.commit()
-    cur.close()
     conn.close()
-    return jsonify({"success": True})
+    return redirect(url_for("admin"))
 
-@app.route('/logout')
-def logout():
-    session.pop('admin', None)
-    return redirect(url_for('login'))
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
