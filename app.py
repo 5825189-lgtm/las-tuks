@@ -23,24 +23,30 @@ def menu():
 
 @app.route('/pedido', methods=['POST'])
 def pedido():
-    data = request.get_json()
-    nombre = data.get('nombre')
-    telefono = data.get('telefono')
-    items = data.get('items')
-    total = data.get('total')
+    try:
+        data = request.get_json()
+        nombre = data.get('nombre')
+        telefono = data.get('telefono')
+        items = data.get('items')
+        total = data.get('total')
 
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO orders (customer_name, customer_phone, items, total, estado)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (nombre, telefono, json.dumps(items), total, "Pendiente"))
-    conn.commit()
-    cur.close()
-    conn.close()
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO orders (customer_name, customer_phone, items, total, estado)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (nombre, telefono, json.dumps(items), total, "Pendiente"))
+        conn.commit()
+        cur.close()
+        conn.close()
 
-    mensaje = f"Gracias {nombre}, tu pedido fue recibido por un total de ${total:.2f}. ¡Las Tuks te desea buen provecho!"
-    return jsonify({"message": mensaje})
+        mensaje = f"Gracias {nombre}, tu pedido fue recibido por un total de ${float(total):.2f}. ¡Las Tuks te desean buen provecho! 🌮"
+        return jsonify({"message": mensaje}), 200
+
+    except Exception as e:
+        print("Error al procesar pedido:", e)
+        return jsonify({"message": "Hubo un error al registrar el pedido."}), 500
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
