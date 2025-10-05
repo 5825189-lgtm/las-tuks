@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Las Tuks</title>
+    <style>
+        body { background: #222; color: white; text-align: center; margin-top: 100px; }
+        input { margin: 10px; padding: 10px; border-radius: 8px; }
+        button { padding: 10px 20px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h2>Acceso Administrador - Las Tuks</h2>
+    <form method="POST">
+        <input type="text" name="usuario" placeholder="Usuario" required><br>
+        <input type="password" name="password" placeholder="Contraseña" required><br>
+        <button type="submit">Ingresar</button>
+    </form>
+    {% if error %}<p style="color:red">{{ error }}</p>{% endif %}
+</body>
+</html>

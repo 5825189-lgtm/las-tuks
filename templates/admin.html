@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin - Las Tuks</title>
+    <style>
+        body { font-family: Arial; background: #222; color: white; text-align: center; }
+        table { margin: 20px auto; background: #333; border-radius: 10px; padding: 10px; }
+        td, th { padding: 10px; }
+        button { border-radius: 8px; margin: 5px; }
+        .entregado { background: green; color: white; }
+        .eliminar { background: red; color: white; }
+    </style>
+</head>
+<body>
+    <h1>📦 Pedidos Las Tuks</h1>
+    <a href="{{ url_for('logout') }}"><button>Salir</button></a>
+    <table border="1">
+        <tr>
+            <th>ID</th><th>Cliente</th><th>Teléfono</th><th>Items</th><th>Total</th><th>Estado</th><th>Acción</th>
+        </tr>
+        {% for p in pedidos %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.customer_name }}</td>
+            <td>{{ p.customer_phone }}</td>
+            <td>{{ p.items }}</td>
+            <td>${{ p.total }}</td>
+            <td>{{ p.estado }}</td>
+            <td>
+                {% if p.estado != 'Entregado' %}
+                <button class="entregado" onclick="marcarEntregado({ pid })">Entregar</button>
+                {% endif %}
+                <button class="eliminar" onclick="eliminarPedido({ pid })">Eliminar</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+        function marcarEntregado(id) {
+            fetch(`/marcar_entregado/${id}`, { method: "POST" })
+            .then(res => res.json())
+            .then(() => location.reload());
+        }
+        function eliminarPedido(id) {
+            fetch(`/eliminar_pedido/${id}`, { method: "POST" })
+            .then(res => res.json())
+            .then(() => location.reload());
+        }
+    </script>
+</body>
+</html>
