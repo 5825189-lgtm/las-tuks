@@ -1,13 +1,13 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 import psycopg2
 import psycopg2.extras
 import os
 
 app = Flask(__name__)
-app.secret_key = "clave_super_secreta_tuks"
+app.secret_key = "clave_super_secreta"
 
 # -------------------------------------------------
-# 🔗 CONEXIÓN A POSTGRES EN RENDER
+# 🔗 CONEXIÓN A LA BASE DE DATOS DE RENDER
 # -------------------------------------------------
 def get_connection():
     return psycopg2.connect(
@@ -19,7 +19,7 @@ def get_connection():
     )
 
 # -------------------------------------------------
-# 🔐 LOGIN DEL ADMIN
+# 🔐 LOGIN ADMIN
 # -------------------------------------------------
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -43,21 +43,21 @@ def menu():
     return render_template("menu.html")
 
 # -------------------------------------------------
-# 💾 GUARDAR PEDIDO EN BASE DE DATOS
+# 💾 GUARDAR PEDIDO EN POSTGRES
 # -------------------------------------------------
 @app.route("/guardar_pedido", methods=["POST"])
 def guardar_pedido():
-    data = request.get_json()
-    nombre = data.get("nombre")
-    telefono = data.get("telefono")
-    pedido = data.get("pedido")
-    total = data.get("total")
-
     try:
+        data = request.get_json()
+        nombre = data.get("nombre")
+        telefono = data.get("telefono", "")
+        pedido = data.get("pedido")
+        total = data.get("total")
+
         conn = get_connection()
         cur = conn.cursor()
 
-        # Crear tabla si no existe
+        # Crear la tabla si no existe
         cur.execute("""
             CREATE TABLE IF NOT EXISTS pedidos (
                 id SERIAL PRIMARY KEY,
@@ -70,22 +70,22 @@ def guardar_pedido():
         """)
 
         # Insertar el pedido
-        cur.execute(
-            "INSERT INTO pedidos (nombre, telefono, pedido, total) VALUES (%s, %s, %s, %s)",
-            (nombre, telefono, pedido, total)
-        )
+        cur.execute("""
+            INSERT INTO pedidos (nombre, telefono, pedido, total)
+            VALUES (%s, %s, %s, %s)
+        """, (nombre, telefono, pedido, total))
 
         conn.commit()
         cur.close()
         conn.close()
 
-        return jsonify({"status": "success", "message": "Pedido guardado exitosamente"}), 200
+        return jsonify({"status": "success", "message": "Pedido guardado exitosamente"})
     except Exception as e:
-        print("❌ Error al guardar pedido:", e)
-        return jsonify({"status": "error", "message": str(e)}), 500
+        print("❌ ERROR GUARDANDO PEDIDO:", e)
+        return jsonify({"status": "error", "message": str(e)})
 
 # -------------------------------------------------
-# 📋 PANEL DE ADMINISTRACIÓN
+# 🧾 PANEL ADMINISTRATIVO
 # -------------------------------------------------
 @app.route("/admin")
 def admin():
@@ -94,13 +94,13 @@ def admin():
 
     try:
         conn = get_connection()
-        cur = conn.cursor()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT * FROM pedidos ORDER BY fecha DESC")
         pedidos = cur.fetchall()
         cur.close()
         conn.close()
     except Exception as e:
-        print("❌ Error cargando pedidos:", e)
+        print("❌ ERROR CARGANDO PEDIDOS:", e)
         pedidos = []
 
     return render_template("admin.html", pedidos=pedidos)
@@ -114,7 +114,7 @@ def logout():
     return redirect(url_for("login"))
 
 # -------------------------------------------------
-# 🚀 INICIO DEL SERVIDOR LOCAL
+# 🚀 INICIO DEL SERVIDOR
 # -------------------------------------------------
 if __name__ == "__main__":
     app.run(debug=True)
