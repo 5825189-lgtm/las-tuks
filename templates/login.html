@@ -4,42 +4,56 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - Las Tuks</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
       background: linear-gradient(135deg, #1b1b1b, #2c2c2c);
       color: white;
+      font-family: "Poppins", sans-serif;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      font-family: "Poppins", sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("/static/tuks-img.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 400px;
+      opacity: 0.08;
+      z-index: -1;
     }
 
     .login-box {
       background-color: rgba(255, 255, 255, 0.08);
       padding: 30px;
       border-radius: 15px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
       width: 350px;
       text-align: center;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
     }
 
-    input {
-      margin-bottom: 10px;
+    h2 {
+      color: #ffb703;
+      margin-bottom: 20px;
     }
 
     .btn-login {
       background-color: #ffb703;
-      color: black;
       border: none;
-      padding: 10px;
-      border-radius: 10px;
+      color: black;
       font-weight: bold;
       width: 100%;
+      margin-top: 10px;
     }
 
     .btn-login:hover {
@@ -53,15 +67,20 @@
 </head>
 <body>
   <div class="login-box">
-    <h2>🔒 Iniciar sesión</h2>
+    <h2>🔐 Ingreso Admin</h2>
     <form method="POST" action="/">
-      <input type="text" name="usuario" class="form-control" placeholder="Usuario" required />
-      <input type="password" name="password" class="form-control" placeholder="Contraseña" required />
-      <button type="submit" class="btn-login mt-2">Entrar</button>
+      <div class="mb-3">
+        <input type="text" class="form-control" name="usuario" placeholder="Usuario" required />
+      </div>
+      <div class="mb-3">
+        <input type="password" class="form-control" name="password" placeholder="Contraseña" required />
+      </div>
+      <button type="submit" class="btn btn-login">Entrar</button>
+
+      {% if error %}
+        <div class="alert alert-danger mt-3">{{ error }}</div>
+      {% endif %}
     </form>
-    {% if error %}
-      <div class="alert alert-danger mt-3">{{ error }}</div>
-    {% endif %}
   </div>
 </body>
 </html>
