@@ -1,197 +1,208 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Menú - Pupusería Las Tuks</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-  <style>
-    body {
-      background: linear-gradient(135deg, #1b1b1b, #2c2c2c);
-      color: white;
-      font-family: "Poppins", sans-serif;
-      padding: 20px;
-      position: relative;
-      overflow-x: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pupusería Las Tuks - Menú</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f8f3ef;
+            background-image: url("/static/tuks-img.png");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 60%;
+            background-attachment: fixed;
+        }
 
-    /* Marca de agua de fondo */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url("/static/tuks-img.png"); /* cambia por tu imagen */
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 400px;
-      opacity: 0.08;
-      z-index: -1;
-    }
+        header {
+            background-color: #b85c38;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
 
-    .menu-container {
-      max-width: 800px;
-      margin: auto;
-      background-color: rgba(255, 255, 255, 0.08);
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
-    }
+        .menu {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin: 40px auto;
+            max-width: 800px;
+        }
 
-    h1 {
-      text-align: center;
-      color: #ffb703;
-      font-weight: 600;
-      margin-bottom: 25px;
-    }
+        .item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            width: 220px;
+        }
 
-    .pupusa-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: rgba(255, 255, 255, 0.05);
-      padding: 10px 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-    }
+        .item img {
+            width: 100%;
+            border-radius: 15px;
+        }
 
-    .btn-agregar {
-      background-color: #219ebc;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 5px 10px;
-      transition: background 0.3s;
-    }
+        .item h3 {
+            margin: 10px 0;
+            color: #b85c38;
+        }
 
-    .btn-agregar:hover {
-      background-color: #126782;
-    }
+        .item button {
+            background-color: #b85c38;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
-    .btn-pedido {
-      background-color: #ffb703;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      color: black;
-      font-weight: bold;
-      transition: background 0.3s;
-    }
+        .item button:hover {
+            background-color: #8c3e20;
+        }
 
-    .btn-pedido:hover {
-      background-color: #f48c06;
-    }
+        .pedido {
+            text-align: center;
+            margin-top: 40px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
-    .pedido-box {
-      background-color: rgba(255, 255, 255, 0.08);
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 20px;
-    }
+        input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            width: 60%;
+            margin-bottom: 10px;
+        }
 
-    .alert {
-      text-align: center;
-      font-weight: bold;
-    }
-  </style>
+        #enviarPedido {
+            background-color: #b85c38;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #enviarPedido:hover {
+            background-color: #8c3e20;
+        }
+
+        #mensaje {
+            margin-top: 20px;
+            font-size: 18px;
+            color: green;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <div class="menu-container">
-    <h1>🥟 Menú de Pupusería Las Tuks</h1>
 
-    <div id="mensaje"></div>
+    <header>🌮 Pupusería Las Tuks - Menú</header>
 
-    <div class="mb-3">
-      <label for="nombreCliente" class="form-label">Tu nombre:</label>
-      <input type="text" id="nombreCliente" class="form-control" placeholder="Escribe tu nombre" />
+    <div class="menu">
+        <div class="item">
+            <img src="https://cdn-icons-png.flaticon.com/512/1139/1139923.png" alt="Frijol con Queso">
+            <h3>Frijol con Queso</h3>
+            <p>$1.00</p>
+            <button onclick="agregar('Frijol con Queso', 1.00)">Agregar</button>
+        </div>
+
+        <div class="item">
+            <img src="https://cdn-icons-png.flaticon.com/512/7139/7139491.png" alt="Revueltas">
+            <h3>Revueltas</h3>
+            <p>$1.25</p>
+            <button onclick="agregar('Revueltas', 1.25)">Agregar</button>
+        </div>
+
+        <div class="item">
+            <img src="https://cdn-icons-png.flaticon.com/512/1869/1869652.png" alt="Especialidad">
+            <h3>Especialidad de la Casa</h3>
+            <p>$1.50</p>
+            <button onclick="agregar('Especialidad de la Casa', 1.50)">Agregar</button>
+        </div>
     </div>
 
-    <div id="menu-lista">
-      <div class="pupusa-item">
-        <span>Pupusa de frijol con queso - $1.25</span>
-        <button class="btn-agregar" onclick="agregar('Pupusa de frijol con queso', 1.25)">Agregar</button>
-      </div>
-      <div class="pupusa-item">
-        <span>Pupusa revuelta - $1.50</span>
-        <button class="btn-agregar" onclick="agregar('Pupusa revuelta', 1.50)">Agregar</button>
-      </div>
-      <div class="pupusa-item">
-        <span>Pupusa especialidad de la casa - $2.00</span>
-        <button class="btn-agregar" onclick="agregar('Pupusa especialidad de la casa', 2.00)">Agregar</button>
-      </div>
+    <div class="pedido">
+        <h2>🧾 Tu Pedido</h2>
+        <ul id="lista"></ul>
+        <p><strong>Total: $<span id="total">0.00</span></strong></p>
+        <input type="text" id="cliente" placeholder="Tu nombre">
+        <br>
+        <button id="enviarPedido">Enviar Pedido</button>
+        <div id="mensaje"></div>
     </div>
 
-    <div class="pedido-box">
-      <h4>🧾 Tu pedido:</h4>
-      <ul id="lista-pedido"></ul>
-      <p><strong>Total:</strong> $<span id="total">0.00</span></p>
+    <script>
+        let pedido = [];
+        let total = 0;
 
-      <button class="btn-pedido" onclick="realizarPedido()">Realizar pedido</button>
-    </div>
-  </div>
+        function agregar(nombre, precio) {
+            pedido.push({ nombre, precio });
+            total += precio;
+            actualizarLista();
+        }
 
-  <script>
-    let pedido = [];
-    let total = 0;
+        function actualizarLista() {
+            const lista = document.getElementById('lista');
+            lista.innerHTML = '';
+            pedido.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = `${item.nombre} - $${item.precio.toFixed(2)}`;
+                lista.appendChild(li);
+            });
+            document.getElementById('total').textContent = total.toFixed(2);
+        }
 
-    function agregar(nombre, precio) {
-      pedido.push({ nombre, precio });
-      total += precio;
-      actualizarPedido();
-    }
+        document.getElementById('enviarPedido').addEventListener('click', async () => {
+            const cliente = document.getElementById('cliente').value;
+            if (!cliente || pedido.length === 0) {
+                alert("Por favor, ingresa tu nombre y selecciona al menos una pupusa.");
+                return;
+            }
 
-    function actualizarPedido() {
-      const lista = document.getElementById("lista-pedido");
-      lista.innerHTML = "";
-      pedido.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = `${item.nombre} - $${item.precio.toFixed(2)}`;
-        lista.appendChild(li);
-      });
-      document.getElementById("total").textContent = total.toFixed(2);
-    }
+            const data = {
+                cliente: cliente,
+                pedido: pedido.map(p => p.nombre).join(", "),
+                total: total
+            };
 
-    async function realizarPedido() {
-      const cliente = document.getElementById("nombreCliente").value.trim();
+            const response = await fetch("/realizar_pedido", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
 
-      if (cliente === "" || pedido.length === 0) {
-        mostrarMensaje("❌ Ingresa tu nombre y agrega al menos una pupusa.", "danger");
-        return;
-      }
+            const result = await response.json();
+            const mensaje = document.getElementById("mensaje");
 
-      const pedidoTexto = pedido.map(p => p.nombre).join(", ");
-
-      const res = await fetch("/realizar_pedido", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cliente: cliente,
-          pedido: pedidoTexto,
-          total: total
-        })
-      });
-
-      if (res.ok) {
-        mostrarMensaje("✅ ¡Pedido realizado con éxito! 🎉", "success");
-        pedido = [];
-        total = 0;
-        actualizarPedido();
-        document.getElementById("nombreCliente").value = "";
-      } else {
-        mostrarMensaje("⚠️ Error al enviar el pedido. Intenta de nuevo.", "danger");
-      }
-    }
-
-    function mostrarMensaje(texto, tipo) {
-      const mensaje = document.getElementById("mensaje");
-      mensaje.innerHTML = `<div class="alert alert-${tipo}" role="alert">${texto}</div>`;
-      setTimeout(() => mensaje.innerHTML = "", 4000);
-    }
-  </script>
+            if (response.ok) {
+                mensaje.style.color = "green";
+                mensaje.textContent = "✅ Pedido enviado exitosamente. ¡Gracias por preferir Las Tuks!";
+                pedido = [];
+                total = 0;
+                actualizarLista();
+                document.getElementById('cliente').value = "";
+            } else {
+                mensaje.style.color = "red";
+                mensaje.textContent = "❌ Error al enviar el pedido. Intenta de nuevo.";
+            }
+        });
+    </script>
 </body>
 </html>
