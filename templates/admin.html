@@ -1,133 +1,112 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Admin - Las Tuks</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #0b0b0b, #212121);
+      background: linear-gradient(135deg, #1b1b1b, #2c2c2c);
       color: white;
-      font-family: "Poppins", sans-serif;
-      padding: 30px;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      padding-top: 60px;
     }
 
-    .container {
-      background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 15px;
+    .navbar {
+      background-color: #ffb703;
+    }
+
+    .navbar-brand {
+      color: black !important;
+      font-weight: 600;
+    }
+
+    .table-container {
+      background-color: rgba(255, 255, 255, 0.08);
       padding: 25px;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      max-width: 1000px;
+      margin: auto;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 25px;
+    h2 {
       color: #ffb703;
       font-weight: 600;
+      margin-bottom: 25px;
     }
 
     table {
       color: white;
+      text-align: center;
     }
 
     thead {
-      background-color: #ffb703;
-      color: black;
-      font-weight: bold;
-    }
-
-    .logout-btn {
-      background-color: #d00000;
-      border: none;
-      color: white;
-      padding: 10px 18px;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: background 0.3s;
-    }
-
-    .logout-btn:hover {
-      background-color: #9d0208;
-    }
-
-    .refresh {
       background-color: #219ebc;
-      border: none;
       color: white;
-      padding: 10px 18px;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-logout {
+      background-color: #d00000;
+      color: white;
+      border: none;
+      padding: 8px 15px;
       border-radius: 8px;
-      text-decoration: none;
       transition: background 0.3s;
     }
 
-    .refresh:hover {
-      background-color: #126782;
+    .btn-logout:hover {
+      background-color: #9b0000;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1>📦 Pedidos Recibidos</h1>
-      <div>
-        <a href="/logout" class="logout-btn">Cerrar Sesión</a>
-      </div>
+  <nav class="navbar fixed-top">
+    <div class="container-fluid d-flex justify-content-between">
+      <span class="navbar-brand">🧾 Panel de Administración - Las Tuks</span>
+      <a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a>
     </div>
+  </nav>
 
-    <table class="table table-hover table-striped table-dark text-center align-middle">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Pedido</th>
-          <th>Total ($)</th>
-          <th>Fecha</th>
-        </tr>
-      </thead>
-      <tbody id="tabla-pedidos">
-        {% for pedido in pedidos %}
-        <tr>
-          <td>{{ pedido.id }}</td>
-          <td>{{ pedido.cliente }}</td>
-          <td>{{ pedido.pedido }}</td>
-          <td>{{ pedido.total }}</td>
-          <td>{{ pedido.fecha.strftime("%d/%m/%Y %H:%M:%S") }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="container mt-5">
+    <div class="table-container">
+      <h2 class="text-center">Pedidos Recibidos</h2>
 
-    <div class="text-center mt-4">
-      <button onclick="cargarPedidos()" class="refresh">🔄 Actualizar</button>
+      {% if pedidos %}
+      <table class="table table-bordered table-hover align-middle">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Pedido</th>
+            <th>Total ($)</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pedidos %}
+          <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.cliente }}</td>
+            <td>{{ p.pedido }}</td>
+            <td>{{ "%.2f"|format(p.total) }}</td>
+            <td>{{ p.fecha.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="alert alert-warning text-center" role="alert">
+        🚫 No hay pedidos registrados todavía.
+      </div>
+      {% endif %}
     </div>
   </div>
-
-  <script>
-    async function cargarPedidos() {
-      const res = await fetch("/admin_data");
-      const data = await res.json();
-      const tbody = document.getElementById("tabla-pedidos");
-      tbody.innerHTML = "";
-
-      data.forEach(p => {
-        const row = `
-          <tr>
-            <td>${p.id}</td>
-            <td>${p.cliente}</td>
-            <td>${p.pedido}</td>
-            <td>${p.total}</td>
-            <td>${new Date(p.fecha).toLocaleString()}</td>
-          </tr>`;
-        tbody.innerHTML += row;
-      });
-    }
-
-    // Auto recarga cada 10 segundos
-    setInterval(cargarPedidos, 10000);
-  </script>
 </body>
 </html>

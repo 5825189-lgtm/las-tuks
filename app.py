@@ -73,7 +73,7 @@ def realizar_pedido():
         conn.close()
         return jsonify({"message": "Pedido guardado exitosamente"}), 200
     except Exception as e:
-        print("Error guardando pedido:", e)
+        print("❌ Error guardando pedido:", e)
         return jsonify({"error": "Error al guardar el pedido"}), 500
 
 # -------------------------------------------------

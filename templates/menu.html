@@ -10,16 +10,18 @@
   />
   <style>
     body {
-      background: linear-gradient(135deg, #1b1b1b, #2c2c2c);
+      background: url("/static/tuks-img.png") no-repeat center center fixed;
+      background-size: cover;
       color: white;
       font-family: "Poppins", sans-serif;
       padding: 20px;
+      backdrop-filter: blur(4px);
     }
 
     .menu-container {
       max-width: 800px;
       margin: auto;
-      background-color: rgba(255, 255, 255, 0.08);
+      background-color: rgba(0, 0, 0, 0.6);
       border-radius: 15px;
       padding: 25px;
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
@@ -167,7 +169,7 @@
       });
 
       if (res.ok) {
-        mostrarMensaje("✅ ¡Pedido realizado con éxito! 🎉", "success");
+        mostrarMensaje(`✅ ¡Gracias ${cliente}! Tu pedido fue recibido. Total: $${total.toFixed(2)} 💛`, "success");
         pedido = [];
         total = 0;
         actualizarPedido();
@@ -180,7 +182,7 @@
     function mostrarMensaje(texto, tipo) {
       const mensaje = document.getElementById("mensaje");
       mensaje.innerHTML = `<div class="alert alert-${tipo}" role="alert">${texto}</div>`;
-      setTimeout(() => mensaje.innerHTML = "", 4000);
+      setTimeout(() => mensaje.innerHTML = "", 5000);
     }
   </script>
 </body>
