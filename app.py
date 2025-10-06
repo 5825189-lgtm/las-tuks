@@ -1,41 +1,30 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import psycopg
-import os
 from datetime import datetime
+import os
 
-app = Flask(__name__, template_folder="templates", static_folder="static")
+app = Flask(__name__)
 
-# === Conexión a la base de datos externa (Render) ===
+# === Conexión directa a base de datos Render ===
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql://las_tuks2_ucmi_user:QbtTaCpUB42eG6UItxQxX1FFL8dKhbsK@dpg-d3hmfi9rofns73cgnrbg-a.oregon-postgres.render.com/las_tuks2_ucmi"
+    "postgresql://las_tuks2_user:3dapkOqNluDXZholXSsFDS9NTBNYRBDE@dpg-d3hjsc95pdvs73fb1ekg-a.oregon-postgres.render.com/las_tuks2"
 )
 
 def get_connection():
     return psycopg.connect(DATABASE_URL)
 
-# === Página de inicio (login) ===
+# === Página de login ===
 @app.route("/")
 def login():
     return render_template("login.html")
 
-# === Ruta de validación del login ===
-@app.route("/login", methods=["POST"])
-def validar_login():
-    usuario = request.form["usuario"]
-    contrasena = request.form["contrasena"]
-
-    if usuario == "admin" and contrasena == "1234":
-        return redirect(url_for("admin"))
-    else:
-        return redirect(url_for("menu"))
-
-# === Página del menú (cliente) ===
+# === Página principal (menú de pupusas) ===
 @app.route("/menu")
 def menu():
     return render_template("menu.html")
 
-# === Guardar pedido en la base de datos ===
+# === Guardar pedido ===
 @app.route("/guardar_pedido", methods=["POST"])
 def guardar_pedido():
     data = request.get_json()
@@ -80,6 +69,7 @@ def admin():
     except Exception as e:
         return f"Error cargando pedidos: {e}"
 
-# === Servidor ===
+# === Configuración para Render ===
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

@@ -2,41 +2,33 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Administración</title>
+  <title>Panel Admin - Las Tuks</title>
   <style>
     body {
+      font-family: Arial, sans-serif;
       background: url("/static/tuks-img.png") no-repeat center center fixed;
       background-size: cover;
-      font-family: 'Poppins', sans-serif;
-      color: white;
+      color: #fff;
       text-align: center;
-      padding: 30px;
     }
     table {
       width: 90%;
-      margin: 20px auto;
+      margin: 30px auto;
       border-collapse: collapse;
-      background: rgba(0, 0, 0, 0.7);
-      border-radius: 10px;
-      overflow: hidden;
+      background-color: rgba(0, 0, 0, 0.7);
     }
     th, td {
-      border: 1px solid #ffb703;
-      padding: 12px;
-      text-align: center;
+      border: 1px solid #fff;
+      padding: 10px;
     }
     th {
-      background-color: #ffb703;
+      background-color: gold;
       color: black;
-    }
-    tr:hover {
-      background: rgba(255, 255, 255, 0.1);
     }
   </style>
 </head>
 <body>
-  <h1>📋 Pedidos Recibidos</h1>
+  <h1>Pedidos Recibidos</h1>
   <table>
     <tr>
       <th>ID</th>
@@ -46,14 +38,14 @@
       <th>Total</th>
       <th>Fecha</th>
     </tr>
-    {% for pedido in pedidos %}
+    {% for p in pedidos %}
     <tr>
-      <td>{{ pedido[0] }}</td>
-      <td>{{ pedido[1] }}</td>
-      <td>{{ pedido[2] }}</td>
-      <td>{{ pedido[3] }}</td>
-      <td>${{ pedido[4] }}</td>
-      <td>{{ pedido[5] }}</td>
+      <td>{{ p[0] }}</td>
+      <td>{{ p[1] }}</td>
+      <td>{{ p[2] }}</td>
+      <td>{{ p[3] }}</td>
+      <td>${{ "%.2f"|format(p[4]) }}</td>
+      <td>{{ p[5] }}</td>
     </tr>
     {% endfor %}
   </table>
