@@ -1,25 +1,25 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import psycopg2
 import psycopg2.extras
 import os
 
 app = Flask(__name__)
-app.secret_key = "clave_super_secreta"
+app.secret_key = "clave_super_secreta_tuks"
 
 # -------------------------------------------------
-# 🔗 CONEXIÓN A POSTGRES (Render o local)
+# 🔗 CONEXIÓN A POSTGRES EN RENDER
 # -------------------------------------------------
 def get_connection():
     return psycopg2.connect(
-        host=os.environ.get("DB_HOST", "localhost"),
-        database=os.environ.get("DB_NAME", "las_tuks_db"),
-        user=os.environ.get("DB_USER", "postgres"),
-        password=os.environ.get("DB_PASSWORD", "admin"),
+        host=os.environ.get("DB_HOST"),
+        database=os.environ.get("DB_NAME"),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASSWORD"),
         port=os.environ.get("DB_PORT", 5432)
     )
 
 # -------------------------------------------------
-# 🔐 LOGIN DEL ADMINISTRADOR
+# 🔐 LOGIN DEL ADMIN
 # -------------------------------------------------
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -27,7 +27,6 @@ def login():
         usuario = request.form["usuario"]
         password = request.form["password"]
 
-        # Usuario y contraseña del administrador
         if usuario == "admin" and password == "1234":
             session["usuario"] = usuario
             return redirect(url_for("admin"))
@@ -37,24 +36,22 @@ def login():
     return render_template("login.html")
 
 # -------------------------------------------------
-# 🍽️ MENÚ PÚBLICO (CLIENTES)
+# 🍽️ MENÚ PÚBLICO
 # -------------------------------------------------
 @app.route("/menu")
 def menu():
     return render_template("menu.html")
 
 # -------------------------------------------------
-# 💾 GUARDAR PEDIDO EN LA BASE DE DATOS
+# 💾 GUARDAR PEDIDO EN BASE DE DATOS
 # -------------------------------------------------
-@app.route("/realizar_pedido", methods=["POST"])
-def realizar_pedido():
+@app.route("/guardar_pedido", methods=["POST"])
+def guardar_pedido():
     data = request.get_json()
-    cliente = data.get("cliente")
+    nombre = data.get("nombre")
+    telefono = data.get("telefono")
     pedido = data.get("pedido")
     total = data.get("total")
-
-    if not cliente or not pedido or not total:
-        return jsonify({"error": "Datos incompletos"}), 400
 
     try:
         conn = get_connection()
@@ -64,31 +61,31 @@ def realizar_pedido():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS pedidos (
                 id SERIAL PRIMARY KEY,
-                cliente VARCHAR(100),
+                nombre VARCHAR(100),
+                telefono VARCHAR(20),
                 pedido TEXT,
                 total NUMERIC,
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
 
-        # Insertar pedido
+        # Insertar el pedido
         cur.execute(
-            "INSERT INTO pedidos (cliente, pedido, total) VALUES (%s, %s, %s)",
-            (cliente, pedido, total)
+            "INSERT INTO pedidos (nombre, telefono, pedido, total) VALUES (%s, %s, %s, %s)",
+            (nombre, telefono, pedido, total)
         )
 
         conn.commit()
         cur.close()
         conn.close()
 
-        return jsonify({"message": "✅ Pedido guardado exitosamente"}), 200
-
+        return jsonify({"status": "success", "message": "Pedido guardado exitosamente"}), 200
     except Exception as e:
-        print("⚠️ Error guardando pedido:", e)
-        return jsonify({"error": "Error al guardar el pedido"}), 500
+        print("❌ Error al guardar pedido:", e)
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 # -------------------------------------------------
-# 🧾 PANEL ADMINISTRADOR
+# 📋 PANEL DE ADMINISTRACIÓN
 # -------------------------------------------------
 @app.route("/admin")
 def admin():
@@ -97,13 +94,13 @@ def admin():
 
     try:
         conn = get_connection()
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur = conn.cursor()
         cur.execute("SELECT * FROM pedidos ORDER BY fecha DESC")
         pedidos = cur.fetchall()
         cur.close()
         conn.close()
     except Exception as e:
-        print("⚠️ Error cargando pedidos:", e)
+        print("❌ Error cargando pedidos:", e)
         pedidos = []
 
     return render_template("admin.html", pedidos=pedidos)
@@ -117,7 +114,7 @@ def logout():
     return redirect(url_for("login"))
 
 # -------------------------------------------------
-# 🚀 INICIO LOCAL
+# 🚀 INICIO DEL SERVIDOR LOCAL
 # -------------------------------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(debug=True)
