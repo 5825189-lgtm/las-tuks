@@ -1,29 +1,41 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import psycopg
-from datetime import datetime
 import os
+from datetime import datetime
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates", static_folder="static")
 
-# === URL de base de datos Render (modo Externo) ===
-# ⚠️ Copia la URL EXACTA que aparece en Render -> "Database -> Info -> External"
-# Ejemplo:
-# postgresql://las_tuks2_ucmi_user:QbtTaCpUB42eG6UItxQYyV123@dpg-d3hmfi9r0fns73cgnrbg-a.oregon-postgres.render.com/las_tuks2_ucmi
-
+# === Conexión a la base de datos externa (Render) ===
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql://las_tuks2_ucmi_user:QbtTaCpUB42eG6UtIxQhnIy4VSowC4hb@dpg-d3hmfi9r0fns73cgnrbg-a.oregon-postgres.render.com/las_tuks2_ucmi"
+    "postgresql://las_tuks2_ucmi_user:QbtTaCpUB42eG6UItxQxX1FFL8dKhbsK@dpg-d3hmfi9rofns73cgnrbg-a.oregon-postgres.render.com/las_tuks2_ucmi"
 )
 
 def get_connection():
-    return psycopg.connect(DATABASE_URL, connect_timeout=10)
+    return psycopg.connect(DATABASE_URL)
 
-# === Página principal ===
+# === Página de inicio (login) ===
 @app.route("/")
-def index():
-    return render_template("index.html")
+def login():
+    return render_template("login.html")
 
-# === Guardar pedido ===
+# === Ruta de validación del login ===
+@app.route("/login", methods=["POST"])
+def validar_login():
+    usuario = request.form["usuario"]
+    contrasena = request.form["contrasena"]
+
+    if usuario == "admin" and contrasena == "1234":
+        return redirect(url_for("admin"))
+    else:
+        return redirect(url_for("menu"))
+
+# === Página del menú (cliente) ===
+@app.route("/menu")
+def menu():
+    return render_template("menu.html")
+
+# === Guardar pedido en la base de datos ===
 @app.route("/guardar_pedido", methods=["POST"])
 def guardar_pedido():
     data = request.get_json()
@@ -51,9 +63,7 @@ def guardar_pedido():
                     VALUES (%s, %s, %s, %s, %s)
                 """, (nombre, telefono, pedido, total, fecha))
                 conn.commit()
-
         return jsonify({"status": "success", "message": "Pedido guardado correctamente."})
-
     except Exception as e:
         print("❌ Error al guardar pedido:", e)
         return jsonify({"status": "error", "message": str(e)})
@@ -70,11 +80,6 @@ def admin():
     except Exception as e:
         return f"Error cargando pedidos: {e}"
 
-# === Ruta 404 personalizada ===
-@app.errorhandler(404)
-def not_found(e):
-    return render_template("404.html"), 404
-
-# === Iniciar servidor ===
+# === Servidor ===
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=10000, debug=True)

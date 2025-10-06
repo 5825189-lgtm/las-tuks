@@ -3,188 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Las Tuks — Pupusas</title>
+  <title>Menú de Pupusas</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
       background: url("/static/tuks-img.png") no-repeat center center fixed;
       background-size: cover;
-      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      text-align: center;
+      padding: 50px;
     }
-
-    h1 {
-      font-size: 2.5em;
-      margin-top: 30px;
-      color: #ffcc00;
-    }
-
-    h2 {
-      font-weight: normal;
-      font-size: 1.2em;
-      color: #ddd;
-    }
-
     .menu {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 40px;
-      gap: 20px;
-    }
-
-    .pupusa {
-      background-color: rgba(255, 248, 220, 0.9);
-      color: black;
-      padding: 20px;
+      background: rgba(0, 0, 0, 0.75);
+      padding: 40px;
       border-radius: 15px;
-      width: 200px;
+      display: inline-block;
+      width: 400px;
     }
-
-    button {
-      margin: 5px;
-      padding: 5px 10px;
+    input, textarea {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
       border: none;
       border-radius: 5px;
+    }
+    button {
+      background: #ffb703;
+      border: none;
+      color: black;
+      padding: 10px 25px;
+      border-radius: 10px;
       cursor: pointer;
-    }
-
-    button:hover {
-      opacity: 0.8;
-    }
-
-    #pedido {
-      background: rgba(255,255,255,0.95);
-      color: black;
-      padding: 20px;
-      border-radius: 15px;
-      width: 60%;
-      margin: 40px auto;
-      text-align: left;
-    }
-
-    input {
-      width: 48%;
-      padding: 8px;
-      margin: 5px;
-    }
-
-    .realizar {
-      background-color: gold;
-      color: black;
       font-weight: bold;
     }
-
-    .cancelar {
-      background-color: lightgray;
-    }
-
-    footer {
-      margin-top: 30px;
-      font-size: 0.8em;
-      color: #bbb;
+    button:hover {
+      background: #f5a400;
     }
   </style>
 </head>
 <body>
-  <h1>Las Tuks</h1>
-  <h2>Sabor que une generaciones</h2>
-
   <div class="menu">
-    <div class="pupusa" data-nombre="Frijol con Queso" data-precio="1.50">
-      <h3>Frijol con Queso</h3>
-      <p>$1.50</p>
-      <button onclick="cambiarCantidad(this, -1)">-</button>
-      <span>0</span>
-      <button onclick="cambiarCantidad(this, 1)">+</button>
-    </div>
-
-    <div class="pupusa" data-nombre="Revueltas" data-precio="1.75">
-      <h3>Revueltas</h3>
-      <p>$1.75</p>
-      <button onclick="cambiarCantidad(this, -1)">-</button>
-      <span>0</span>
-      <button onclick="cambiarCantidad(this, 1)">+</button>
-    </div>
-
-    <div class="pupusa" data-nombre="Especialidad de la casa" data-precio="2.00">
-      <h3>Especialidad de la casa</h3>
-      <p>$2.00</p>
-      <button onclick="cambiarCantidad(this, -1)">-</button>
-      <span>0</span>
-      <button onclick="cambiarCantidad(this, 1)">+</button>
-    </div>
+    <h2>🍽️ Haz tu pedido</h2>
+    <input type="text" id="nombre" placeholder="Tu nombre" required><br>
+    <input type="text" id="telefono" placeholder="Tu teléfono" required><br>
+    <textarea id="pedido" placeholder="Escribe tu pedido aquí..." rows="4"></textarea><br>
+    <input type="number" id="total" placeholder="Total ($)" step="0.01" required><br>
+    <button onclick="enviarPedido()">Enviar pedido</button>
+    <p id="mensaje"></p>
   </div>
-
-  <div id="pedido">
-    <p><strong>Tu pedido</strong> — Total: $<span id="total">0.00</span></p>
-    <p id="lista">No hay pupusas seleccionadas.</p>
-    <input type="text" id="nombre" placeholder="Nombre">
-    <input type="text" id="telefono" placeholder="Teléfono (opcional)">
-    <br>
-    <button class="realizar" onclick="realizarPedido()">Realizar pedido</button>
-    <button class="cancelar" onclick="cancelarPedido()">Cancelar</button>
-  </div>
-
-  <footer>© Las Tuks — Pupusas artesanales</footer>
 
   <script>
-    function cambiarCantidad(btn, cambio) {
-      let span = btn.parentElement.querySelector("span");
-      let cantidad = parseInt(span.textContent);
-      cantidad = Math.max(0, cantidad + cambio);
-      span.textContent = cantidad;
-      actualizarPedido();
-    }
+    async function enviarPedido() {
+      const data = {
+        nombre: document.getElementById('nombre').value,
+        telefono: document.getElementById('telefono').value,
+        pedido: document.getElementById('pedido').value,
+        total: document.getElementById('total').value
+      };
 
-    function actualizarPedido() {
-      let items = document.querySelectorAll(".pupusa");
-      let lista = "";
-      let total = 0;
-
-      items.forEach(item => {
-        let nombre = item.dataset.nombre;
-        let precio = parseFloat(item.dataset.precio);
-        let cantidad = parseInt(item.querySelector("span").textContent);
-
-        if (cantidad > 0) {
-          lista += `${cantidad}x ${nombre} ($${precio * cantidad})<br>`;
-          total += precio * cantidad;
-        }
+      const respuesta = await fetch('/guardar_pedido', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
 
-      document.getElementById("lista").innerHTML = lista || "No hay pupusas seleccionadas.";
-      document.getElementById("total").textContent = total.toFixed(2);
-    }
-
-    async function realizarPedido() {
-      let nombre = document.getElementById("nombre").value.trim();
-      let telefono = document.getElementById("telefono").value.trim();
-      let pedido = document.getElementById("lista").innerHTML.replaceAll("<br>", "\n");
-      let total = parseFloat(document.getElementById("total").textContent);
-
-      if (!nombre || total === 0) {
-        alert("Por favor ingresa tu nombre y selecciona al menos una pupusa.");
-        return;
-      }
-
-      const respuesta = await fetch("/guardar_pedido", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, telefono, pedido, total })
-      });
-
-      const resultado = await respuesta.json();
-      if (resultado.status === "success") {
-        alert("✅ Pedido enviado correctamente. ¡Gracias!");
-        location.reload();
-      } else {
-        alert("❌ Error al enviar el pedido: " + resultado.message);
-      }
-    }
-
-    function cancelarPedido() {
-      location.reload();
+      const result = await respuesta.json();
+      const mensaje = document.getElementById("mensaje");
+      mensaje.innerText = result.message;
+      mensaje.style.color = result.status === "success" ? "lightgreen" : "red";
     }
   </script>
 </body>
