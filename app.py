@@ -5,14 +5,18 @@ import os
 
 app = Flask(__name__)
 
-# === Conexión directa a tu base de datos de Render ===
+# === URL de base de datos Render (modo Externo) ===
+# ⚠️ Copia la URL EXACTA que aparece en Render -> "Database -> Info -> External"
+# Ejemplo:
+# postgresql://las_tuks2_ucmi_user:QbtTaCpUB42eG6UItxQYyV123@dpg-d3hmfi9r0fns73cgnrbg-a.oregon-postgres.render.com/las_tuks2_ucmi
+
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql://las_tuks2_user:3dapkOqNluDXZholXSsFDS9NTBNYRBDE@dpg-d3hjsc95pdvs73fb1ekg-a.oregon-postgres.render.com/las_tuks2"
+    "postgresql://las_tuks2_ucmi_user:QbtTaCpUB42eG6UtIxQhnIy4VSowC4hb@dpg-d3hmfi9r0fns73cgnrbg-a.oregon-postgres.render.com/las_tuks2_ucmi"
 )
 
 def get_connection():
-    return psycopg.connect(DATABASE_URL)
+    return psycopg.connect(DATABASE_URL, connect_timeout=10)
 
 # === Página principal ===
 @app.route("/")
@@ -66,6 +70,11 @@ def admin():
     except Exception as e:
         return f"Error cargando pedidos: {e}"
 
+# === Ruta 404 personalizada ===
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("404.html"), 404
+
 # === Iniciar servidor ===
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
